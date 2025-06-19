@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="assets\background.png" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\BingoCardGenerator.Core\BingoCardGenerator.Core.csproj" />
+    <ProjectReference Include="..\BingoCardGenerator.Data\BingoCardGenerator.Data.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="assets\background.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="assets\unknow-artist.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+</Project>

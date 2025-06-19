@@ -1,0 +1,17 @@
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Data.deps.json
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Data.runtimeconfig.json
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Data.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Data.pdb
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Core.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\bin\Debug\net8.0\BingoCardGenerator.Core.pdb
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.csproj.AssemblyReference.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.AssemblyInfoInputs.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.AssemblyInfo.cs
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.csproj.CoreCompileInputs.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCar.1956750C.Up2Date
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\refint\BingoCardGenerator.Data.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.pdb
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\BingoCardGenerator.Data.genruntimeconfig.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Data\obj\Debug\net8.0\ref\BingoCardGenerator.Data.dll

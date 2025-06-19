@@ -1,0 +1,12 @@
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\bin\Debug\net8.0\BingoCardGenerator.Core.deps.json
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\bin\Debug\net8.0\BingoCardGenerator.Core.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\bin\Debug\net8.0\BingoCardGenerator.Core.pdb
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.csproj.AssemblyReference.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.AssemblyInfoInputs.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.AssemblyInfo.cs
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.csproj.CoreCompileInputs.cache
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\refint\BingoCardGenerator.Core.dll
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\BingoCardGenerator.Core.pdb
+C:\Users\T490\source\repos\filippoleone95\BingoCardGenerator\BingoCardGenerator.Core\obj\Debug\net8.0\ref\BingoCardGenerator.Core.dll

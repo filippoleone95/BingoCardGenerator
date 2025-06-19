@@ -1,0 +1,112 @@
+﻿<Window x:Class="BingoCardGenerator.UI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        Title="Bingo Music Game"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterScreen"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+    <!-- Risorse condivise -->
+    <Window.Resources>
+        <!-- Definisce un ImageBrush per lo sfondo della scheda -->
+        <ImageBrush x:Key="BingoCardBackgroundBrush"
+                    ImageSource="assets/background.png"
+                    Stretch="UniformToFill" />
+    </Window.Resources>
+
+    <Grid Width="1000" Height="600">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="350" />
+            <ColumnDefinition Width="650" />
+        </Grid.ColumnDefinitions>
+
+        <!-- Colonna di comandi con layout a griglia per stretch verticale -->
+        <Grid Grid.Column="0" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Top controls -->
+                <RowDefinition Height="*"/>
+                <!-- ListView fills available height -->
+                <RowDefinition Height="Auto"/>
+                <!-- StatusBar -->
+            </Grid.RowDefinitions>
+
+            <!-- Controlli: Percorso DB, Apertura e Generazione schede -->
+            <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,0,10">
+                <!-- Percorso DB -->
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                    <!-- Bottone Apri DB -->
+                    <Button Name="BtnOpen"
+                        Click="BtnOpen_Click"
+                        Content="Seleziona DB"
+                        Margin="0,0,10,0" 
+                        Width="80"
+                        VerticalAlignment="Center"/>
+                    <TextBox Name="txtPath"
+                        Width="240"
+                        IsReadOnly="True"
+                        Margin="0,0,0,0" />
+                </StackPanel>
+                <!-- Generazione schede -->
+            </StackPanel>
+
+            <!-- Lista schede: occupa riga propria -->
+            <ListView Grid.Row="1"
+              Name="LvCards"
+              SelectionChanged="LvCards_SelectionChanged">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="ID"
+                                DisplayMemberBinding="{Binding Id}" />
+                        <GridViewColumn Header="Data"
+                                DisplayMemberBinding="{Binding CreatedAt}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+            <!-- Status Bar -->
+            <StatusBar Grid.Row="2" Margin="0,10,0,0">
+                <StatusBarItem>
+                    <TextBlock Name="txtStatus" Foreground="Gray" />
+                </StatusBarItem>
+            </StatusBar>
+        </Grid>
+
+        <!-- Anteprima scheda con pulsante genera in basso a destra -->
+        <Grid Grid.Column="1" Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <!-- Anteprima -->
+                <RowDefinition Height="Auto"/>
+                <!-- Pulsante -->
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    CornerRadius="8"
+                    BorderBrush="Gray"
+                    BorderThickness="1"
+                    Background="{StaticResource BingoCardBackgroundBrush}"
+                    Width="600"
+                    Height="400">
+                <UniformGrid Name="previewGrid"
+                             Rows="4"
+                             Columns="5"
+                             Width="600"
+                             Height="400"
+                             Background="Transparent" />
+            </Border>
+
+            <!-- Pulsante Genera nuove schede sotto anteprima -->
+            <Button Grid.Row="1"
+                    Name="BtnOpenGenerateWindow"
+                    Click="BtnOpenGenerateWindow_Click"
+                    Content="Genera nuove schede"
+                    Width="150"
+                    HorizontalAlignment="Right"
+                    Margin="0,10,0,0" />
+        </Grid>
+    </Grid>
+</Window>
