@@ -110,6 +110,41 @@ namespace BingoCardGenerator.UI
             }
         }
 
+        private void BtnExportImage_Click(object sender, RoutedEventArgs e)
+        {
+            // 1) Prendi la card selezionata
+            if (LvCards.SelectedItem is not BingoCard stub || _db is null) return;
+
+            var card = _db.Cards
+                          .Include(c => c.Entries)
+                              .ThenInclude(en => en.Artist)
+                          .AsNoTracking()
+                          .First(c => c.Id == stub.Id);
+
+            // 2) Chiedi dove salvare
+            var dlg = new SaveFileDialog
+            {
+                Filter = "PNG Image|*.png",
+                FileName = $"card_{card.Id}.png"
+            };
+            if (dlg.ShowDialog() != true) return;
+
+            // 3) Chiama il renderer
+            var bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "new-game-bg.png");
+            var outputPath = dlg.FileName;
+            try
+            {
+                CardRenderer.RenderCardImage(card, bgPath, outputPath);
+                txtStatus.Text = $"Immagine salvata in: {outputPath}";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Errore export: {ex.Message}", "Errore",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
         private static BitmapImage LoadBitmap(byte[] data)
         {
             using var ms = new MemoryStream(data);
