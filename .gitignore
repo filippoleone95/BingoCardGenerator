@@ -2,5 +2,10 @@
 # Il file gitignore è stato creato automaticamente da Microsoft(R) Visual Studio.
 ################################################################################
 
-./BingoCardGenerator.UI/obj/*
+/BingoCardGenerator.UI/obj/*
+/BingoCardGenerator.UI/bin/*
+/BingoCardGenerator.Core/obj/*
+/BingoCardGenerator.Core/bin/*
+/BingoCardGenerator.Data/obj/*
+/BingoCardGenerator.Data/bin/*
 /.vs/*
