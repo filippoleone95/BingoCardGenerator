@@ -9,6 +9,7 @@ using Microsoft.Win32;
 using BingoCardGenerator.Core.Models;
 using BingoCardGenerator.Data;
 using BingoCardGenerator.Data.Services;
+using System.Windows.Media;
 
 namespace BingoCardGenerator.UI
 {
@@ -86,14 +87,22 @@ namespace BingoCardGenerator.UI
 
         private void ShowPreview(BingoCard card)
         {
+            // Pulisce e assicura che nulla esca dal bordo
             previewCanvas.Children.Clear();
+            previewCanvas.ClipToBounds = true;
 
-            // Nuovi parametri
+            // Parametri di layout
             const int slotSize = 150;
             const int gapX = 34;
             const int gapY = 87;
             const int startX = 155;
             const int startY = 207;
+            const int textMarginTop = 4;
+
+            // Testo: font più grande e max 2 righe
+            const double fontSize = 22;
+            const double lineHeight = fontSize * 1.2;    // ~24px
+            const double maxTextHeight = lineHeight * 2.4;    // spazio per 2 righe
 
             var entries = card.Entries
                               .OrderBy(e => e.Position)
@@ -104,27 +113,41 @@ namespace BingoCardGenerator.UI
                 for (int col = 0; col < 5; col++)
                 {
                     var entry = entries[row * 5 + col];
-                    if (entry.Artist?.ImageBase64 is null) continue;
+                    if (entry.Artist is null) continue;
 
-                    var img = new Image
+                    // --- 1) Immagine artista ---
+                    var img = new System.Windows.Controls.Image
                     {
                         Width = slotSize,
                         Height = slotSize,
                         Source = LoadBitmap(Convert.FromBase64String(entry.Artist.ImageBase64))
                     };
-
-                    // calcolo X,Y con le tue formule
                     double x = startX + col * (slotSize + gapX);
                     double y = startY + row * (slotSize + gapY);
-
                     Canvas.SetLeft(img, x);
                     Canvas.SetTop(img, y);
                     previewCanvas.Children.Add(img);
+
+                    // --- 2) Nome artista con wrap su 2 righe ---
+                    var tb = new TextBlock
+                    {
+                        Text = entry.Artist.Name,
+                        Width = slotSize,
+                        FontSize = fontSize,
+                        LineHeight = lineHeight,
+                        MaxHeight = maxTextHeight,
+                        TextAlignment = TextAlignment.Center,
+                        TextWrapping = TextWrapping.Wrap,
+                        Foreground = Brushes.White,
+                        FontWeight = FontWeights.SemiBold
+                        // rimosso TextTrimming per permettere il wrap completo
+                    };
+                    Canvas.SetLeft(tb, x);
+                    Canvas.SetTop(tb, y + slotSize + textMarginTop);
+                    previewCanvas.Children.Add(tb);
                 }
             }
         }
-
-
 
         private void BtnExportImage_Click(object sender, RoutedEventArgs e)
         {
