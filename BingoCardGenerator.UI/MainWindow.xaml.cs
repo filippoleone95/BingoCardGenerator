@@ -86,29 +86,45 @@ namespace BingoCardGenerator.UI
 
         private void ShowPreview(BingoCard card)
         {
-            previewGrid.Children.Clear();
+            previewCanvas.Children.Clear();
 
-            foreach (var entry in card.Entries.OrderBy(en => en.Position))
+            // Nuovi parametri
+            const int slotSize = 150;
+            const int gapX = 34;
+            const int gapY = 87;
+            const int startX = 155;
+            const int startY = 207;
+
+            var entries = card.Entries
+                              .OrderBy(e => e.Position)
+                              .ToList();
+
+            for (int row = 0; row < 4; row++)
             {
-                var img = new Image
+                for (int col = 0; col < 5; col++)
                 {
-                    Width = 80,
-                    Height = 80,
-                    Margin = new Thickness(4)
-                };
+                    var entry = entries[row * 5 + col];
+                    if (entry.Artist?.ImageBase64 is null) continue;
 
-                if (entry.Artist?.ImageBase64 is { } b64)
-                {
-                    img.Source = LoadBitmap(Convert.FromBase64String(b64));
-                }
-                else
-                {
-                    img.Source = _emptySlot;
-                }
+                    var img = new Image
+                    {
+                        Width = slotSize,
+                        Height = slotSize,
+                        Source = LoadBitmap(Convert.FromBase64String(entry.Artist.ImageBase64))
+                    };
 
-                previewGrid.Children.Add(img);
+                    // calcolo X,Y con le tue formule
+                    double x = startX + col * (slotSize + gapX);
+                    double y = startY + row * (slotSize + gapY);
+
+                    Canvas.SetLeft(img, x);
+                    Canvas.SetTop(img, y);
+                    previewCanvas.Children.Add(img);
+                }
             }
         }
+
+
 
         private void BtnExportImage_Click(object sender, RoutedEventArgs e)
         {

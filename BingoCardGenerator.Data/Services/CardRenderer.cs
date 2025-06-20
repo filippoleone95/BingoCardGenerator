@@ -20,11 +20,11 @@ namespace BingoCardGenerator.Data.Services
             using Bitmap bg = (Bitmap)Image.FromFile(backgroundPath);
             using Graphics g = Graphics.FromImage(bg);
 
-            const int slotSize = 200;
-            const int gapX = 46;
-            const int gapY = 40;
-            const int startX = 557;
-            const int startY = 90;
+            const int slotSize = 150;
+            const int gapX = 34;
+            const int gapY = 87;
+            const int startX = 155;
+            const int startY = 207;
 
             // Prendi le entry ordinate per posizione
             var entries = card.Entries
