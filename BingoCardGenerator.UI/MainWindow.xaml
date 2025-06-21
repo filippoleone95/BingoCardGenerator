@@ -17,6 +17,9 @@
                     Stretch="Uniform"
                     AlignmentX="Center"
                     AlignmentY="Center"/>
+        <FontFamily x:Key="CroissantOneFont">
+            pack://application:,,,/BingoCardGenerator.UI;component/assets/fonts/#Croissant One
+        </FontFamily>
     </Window.Resources>
 
     <Grid Width="1000" Height="700">

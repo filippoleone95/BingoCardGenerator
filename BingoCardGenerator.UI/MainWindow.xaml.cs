@@ -140,8 +140,8 @@ namespace BingoCardGenerator.UI
                         TextWrapping = TextWrapping.Wrap,
                         Foreground = Brushes.White,
                         FontWeight = FontWeights.SemiBold
-                        // rimosso TextTrimming per permettere il wrap completo
                     };
+                    tb.FontFamily = (FontFamily)Resources["CroissantOneFont"];
                     Canvas.SetLeft(tb, x);
                     Canvas.SetTop(tb, y + slotSize + textMarginTop);
                     previewCanvas.Children.Add(tb);
