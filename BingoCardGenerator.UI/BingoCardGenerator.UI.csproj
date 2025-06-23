@@ -11,6 +11,7 @@
   <ItemGroup>
     <None Remove="assets\background.png" />
     <None Remove="assets\fonts\CroissantOne-Regular.ttf" />
+    <None Remove="assets\unknow-artist-2.png" />
   </ItemGroup>
   
   <ItemGroup>
@@ -20,13 +21,16 @@
 
   <ItemGroup>
     <Resource Include="assets\background.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="assets\fonts\CroissantOne-Regular.ttf">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    <Content Include="assets\fonts\CroissantOne-Regular.ttf">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Resource Include="assets\unknow-artist-2.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
     <Resource Include="assets\unknow-artist.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>
 

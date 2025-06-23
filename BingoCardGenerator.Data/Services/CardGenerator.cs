@@ -20,57 +20,81 @@ namespace BingoCardGenerator.Data.Services
         public async Task<List<BingoCard>> GenerateAsync(int count)
         {
             var allArtists = await _db.Artists.ToListAsync();
-            if (allArtists.Count < 16)
-                throw new InvalidOperationException("Servono almeno 16 artisti nel database.");
+            if (allArtists.Count < 17)
+                throw new InvalidOperationException("Servono almeno 17 artisti nel DB");
 
-            var result = new List<BingoCard>();
+            var rnd = new Random();
+            var created = new List<BingoCard>();
 
-            // Preleva l'elenco di firme esistenti per evitare duplicati rispetto al DB
-            var existingSignatures = await _db.Cards
-                .Select(c => c.Entries
-                               .Where(e => e.ArtistId != null)
-                               .Select(e => e.ArtistId!.Value)
-                               .OrderBy(id => id)
-                               .ToList())
-                .ToListAsync();
-
-            while (result.Count < count)
+            for (int i = 0; i < count; i++)
             {
-                var picks = allArtists
-                    .OrderBy(_ => _rng.Next())
-                    .Take(16)
-                    .ToList();
+                // 1) Pesca 17 artisti unici
+                var picked = allArtists.OrderBy(a => rnd.Next()).Take(17).ToList();
 
-                var pickSignature = picks.Select(a => a.Id).OrderBy(id => id).ToList();
+                // 2) Estrai i 5 per la “full row” e i restanti 12 per le altre
+                var fullRowArtists = picked.Take(5).ToList();
+                var otherArtists = picked.Skip(5).Take(12).ToList();
 
-                bool duplicate = existingSignatures.Any(sig => sig.SequenceEqual(pickSignature)) ||
-                                  result.Any(c => c.Entries
-                                                    .Where(e => e.ArtistId != null)
-                                                    .Select(e => e.ArtistId!.Value)
-                                                    .OrderBy(id => id)
-                                                    .SequenceEqual(pickSignature));
+                // 3) Scegli casualmente quale row (0..3) sarà full
+                int fullRow = rnd.Next(4);
 
-                if (duplicate) continue;
+                var entries = new List<CardEntry>();
+                int otherIdx = 0;
 
-                var card = new BingoCard { CreatedAt = DateTime.UtcNow };
-                for (int pos = 0; pos < 20; pos++)
+                // 4) Costruisci le 4 righe × 5 colonne
+                for (int row = 0; row < 4; row++)
                 {
-                    var entry = new CardEntry { Position = pos, Card = card };
-                    if (pos < 16)
+                    if (row == fullRow)
                     {
-                        entry.Artist = picks[pos];
-                        entry.ArtistId = picks[pos].Id;
+                        // tutta la row piena di artisti
+                        for (int col = 0; col < 5; col++)
+                        {
+                            entries.Add(new CardEntry
+                            {
+                                Position = row * 5 + col,
+                                Artist = fullRowArtists[col]
+                            });
+                        }
                     }
-                    card.Entries.Add(entry);
+                    else
+                    {
+                        // 4 posizioni a caso per i reali, 1 per il placeholder
+                        var artistCols = Enumerable.Range(0, 5)
+                                                   .OrderBy(x => rnd.Next())
+                                                   .Take(4)
+                                                   .ToHashSet();
+                        for (int col = 0; col < 5; col++)
+                        {
+                            if (artistCols.Contains(col))
+                            {
+                                entries.Add(new CardEntry
+                                {
+                                    Position = row * 5 + col,
+                                    Artist = otherArtists[otherIdx++]
+                                });
+                            }
+                            else
+                            {
+                                // placeholder (Artist = null)
+                                entries.Add(new CardEntry
+                                {
+                                    Position = row * 5 + col,
+                                    Artist = null
+                                });
+                            }
+                        }
+                    }
                 }
 
-                result.Add(card);
+                // 5) Salva la card
+                var card = new BingoCard { CreatedAt = DateTime.UtcNow, Entries = entries };
                 _db.Cards.Add(card);
-                existingSignatures.Add(pickSignature);
+                await _db.SaveChangesAsync();
+                created.Add(card);
             }
 
-            await _db.SaveChangesAsync();
-            return result;
+            return created;
         }
+
     }
 }

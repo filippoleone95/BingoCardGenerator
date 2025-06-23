@@ -87,11 +87,9 @@ namespace BingoCardGenerator.UI
 
         private void ShowPreview(BingoCard card)
         {
-            // Pulisce e assicura che nulla esca dal bordo
             previewCanvas.Children.Clear();
             previewCanvas.ClipToBounds = true;
 
-            // Parametri di layout
             const int slotSize = 150;
             const int gapX = 34;
             const int gapY = 87;
@@ -99,54 +97,54 @@ namespace BingoCardGenerator.UI
             const int startY = 207;
             const int textMarginTop = 4;
 
-            // Testo: font più grande e max 2 righe
-            const double fontSize = 22;
-            const double lineHeight = fontSize * 1.2;    // ~24px
-            const double maxTextHeight = lineHeight * 2.4;    // spazio per 2 righe
+            // Pack URI per i due placeholder
+            var ph0 = new BitmapImage(new Uri("pack://application:,,,/assets/unknow-artist.png"));
+            var ph1 = new BitmapImage(new Uri("pack://application:,,,/assets/unknow-artist-2.png"));
 
-            var entries = card.Entries
-                              .OrderBy(e => e.Position)
-                              .ToList();
-
+            // Ordina le entry e crea ciascun elemento
+            var entries = card.Entries.OrderBy(e => e.Position).ToList();
             for (int row = 0; row < 4; row++)
-            {
                 for (int col = 0; col < 5; col++)
                 {
                     var entry = entries[row * 5 + col];
-                    if (entry.Artist is null) continue;
+                    double x = startX + col * (slotSize + gapX);
+                    double y = startY + row * (slotSize + gapY);
 
-                    // --- 1) Immagine artista ---
-                    var img = new System.Windows.Controls.Image
+                    // 1) Immagine (artista o placeholder)
+                    var img = new Image
                     {
                         Width = slotSize,
                         Height = slotSize,
-                        Source = LoadBitmap(Convert.FromBase64String(entry.Artist.ImageBase64))
+                        Source = entry.Artist != null
+                                 ? LoadBitmap(Convert.FromBase64String(entry.Artist.ImageBase64))
+                                 // determinismo: (cardId + pos) % 2
+                                 : ((card.Id + entry.Position) % 2 == 0 ? ph0 : ph1)
                     };
-                    double x = startX + col * (slotSize + gapX);
-                    double y = startY + row * (slotSize + gapY);
                     Canvas.SetLeft(img, x);
                     Canvas.SetTop(img, y);
                     previewCanvas.Children.Add(img);
 
-                    // --- 2) Nome artista con wrap su 2 righe ---
-                    var tb = new TextBlock
+                    // 2) Nome artista (solo se non placeholder)
+                    if (entry.Artist != null)
                     {
-                        Text = entry.Artist.Name,
-                        Width = slotSize,
-                        FontSize = fontSize,
-                        LineHeight = lineHeight,
-                        MaxHeight = maxTextHeight,
-                        TextAlignment = TextAlignment.Center,
-                        TextWrapping = TextWrapping.Wrap,
-                        Foreground = Brushes.White,
-                        FontWeight = FontWeights.SemiBold
-                    };
-                    tb.FontFamily = (FontFamily)Resources["CroissantOneFont"];
-                    Canvas.SetLeft(tb, x);
-                    Canvas.SetTop(tb, y + slotSize + textMarginTop);
-                    previewCanvas.Children.Add(tb);
+                        var tb = new TextBlock
+                        {
+                            Text = entry.Artist.Name,
+                            Width = slotSize,
+                            FontSize = 20,
+                            LineHeight = 20 * 1.4,
+                            MaxHeight = 20 * 1.2 * 2.4,
+                            TextAlignment = TextAlignment.Center,
+                            TextWrapping = TextWrapping.Wrap,
+                            Foreground = Brushes.White,
+                            FontWeight = FontWeights.SemiBold
+                        };
+                        tb.FontFamily = (FontFamily)Resources["CroissantOneFont"];
+                        Canvas.SetLeft(tb, x);
+                        Canvas.SetTop(tb, y + slotSize + textMarginTop);
+                        previewCanvas.Children.Add(tb);
+                    }
                 }
-            }
         }
 
         private void BtnExportImage_Click(object sender, RoutedEventArgs e)
@@ -169,7 +167,7 @@ namespace BingoCardGenerator.UI
             if (dlg.ShowDialog() != true) return;
 
             // 3) Chiama il renderer
-            var bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "new-game-bg.png");
+            var bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "background.png");
             var outputPath = dlg.FileName;
             try
             {
