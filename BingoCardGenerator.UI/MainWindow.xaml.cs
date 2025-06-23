@@ -1,15 +1,16 @@
-﻿using System;
+﻿using BingoCardGenerator.Core.Models;
+using BingoCardGenerator.Data;
+using BingoCardGenerator.Data.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Win32;
+using Microsoft.WindowsAPICodePack.Dialogs;
+using System;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media.Imaging;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Win32;
-using BingoCardGenerator.Core.Models;
-using BingoCardGenerator.Data;
-using BingoCardGenerator.Data.Services;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 
 namespace BingoCardGenerator.UI
 {
@@ -41,6 +42,10 @@ namespace BingoCardGenerator.UI
 
             RefreshCardList();
             txtStatus.Text = "Database caricato.";
+
+            // Ora che il DB è pronto, abilito i bottoni
+            BtnOpenGenerateWindow.IsEnabled = true;
+            BtnExportRange.IsEnabled = true;
         }
 
         private void BtnOpenGenerateWindow_Click(object sender, RoutedEventArgs e)
@@ -147,38 +152,82 @@ namespace BingoCardGenerator.UI
                 }
         }
 
-        private void BtnExportImage_Click(object sender, RoutedEventArgs e)
+        private void BtnExportRange_Click(object sender, RoutedEventArgs e)
         {
-            // 1) Prendi la card selezionata
-            if (LvCards.SelectedItem is not BingoCard stub || _db is null) return;
+            if (_db is null) return;
 
-            var card = _db.Cards
-                          .Include(c => c.Entries)
-                              .ThenInclude(en => en.Artist)
-                          .AsNoTracking()
-                          .First(c => c.Id == stub.Id);
+            // 1) Apri dialog per inserire range
+            var rangeDlg = new ExportRangeWindow { Owner = this };
+            if (rangeDlg.ShowDialog() != true) return;
 
-            // 2) Chiedi dove salvare
-            var dlg = new SaveFileDialog
-            {
-                Filter = "PNG Image|*.png",
-                FileName = $"card_{card.Id}.png"
-            };
-            if (dlg.ShowDialog() != true) return;
+            int fromId = rangeDlg.FromId;
+            int toId = rangeDlg.ToId;
 
-            // 3) Chiama il renderer
-            var bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "assets", "background.png");
-            var outputPath = dlg.FileName;
-            try
+            // 2) Seleziona cartella di destinazione
+            var totalCards = _db.Cards.Count();
+            if (totalCards == 0)
             {
-                CardRenderer.RenderCardImage(card, bgPath, outputPath);
-                txtStatus.Text = $"Immagine salvata in: {outputPath}";
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show($"Errore export: {ex.Message}", "Errore",
+                MessageBox.Show("Non ci sono schede nel database.", "Errore",
                                 MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
             }
+
+            // 1.2) Trova l'ID massimo attualmente esistente
+            int maxId = _db.Cards.Max(c => c.Id);
+
+            // 1.3) Validazione intervallo
+            if (fromId < 1 || fromId > maxId)
+            {
+                MessageBox.Show($"ID di inizio non valido: deve essere compreso tra 1 e {maxId}.",
+                                "Errore intervallo", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            if (toId < fromId || toId > maxId)
+            {
+                MessageBox.Show($"ID di fine non valido: deve essere compreso tra {fromId} e {maxId}.",
+                                "Errore intervallo", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            var dlg = new CommonOpenFileDialog
+            {
+                IsFolderPicker = true,
+                Title = "Seleziona la cartella di destinazione"
+            };
+            if (dlg.ShowDialog() != CommonFileDialogResult.Ok) return;
+            string folder = dlg.FileName;
+
+            // 3) Preleva le card nel range
+            var cards = _db.Cards
+                           .Include(c => c.Entries)
+                             .ThenInclude(en => en.Artist)
+                           .AsNoTracking()
+                           .Where(c => c.Id >= fromId && c.Id <= toId)
+                           .OrderBy(c => c.Id)
+                           .ToList();
+
+            // 3.1) Controlla che ci siano effettivamente schede da esportare
+            if (cards.Count == 0)
+            {
+                MessageBox.Show("Nessuna scheda trovata nell'intervallo specificato.", "Errore",
+                                MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            // 4) Esporta tutte le schede a PNG
+            string bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
+                                         "assets", "background.png");
+            int count = 0;
+            foreach (var card in cards)
+            {
+                string outputPath = Path.Combine(folder,
+                    $"card_{card.Id}.png");
+                CardRenderer.RenderCardImage(card, bgPath, outputPath);
+                count++;
+            }
+
+            // 5) Feedback
+            txtStatus.Text = $"Esportate {count} schede in {folder}";
         }
 
 

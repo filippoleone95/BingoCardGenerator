@@ -26,6 +26,7 @@
     <Content Include="assets\fonts\CroissantOne-Regular.ttf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <PackageReference Include="WindowsAPICodePack-Shell" Version="1.1.1" />
     <Resource Include="assets\unknow-artist-2.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>

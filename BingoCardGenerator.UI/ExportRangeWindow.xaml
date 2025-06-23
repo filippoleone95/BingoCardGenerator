@@ -1,0 +1,36 @@
+﻿<Window x:Class="BingoCardGenerator.UI.ExportRangeWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Esporta intervallo schede"
+        SizeToContent="WidthAndHeight"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Specifica range da–a -->
+        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+            <Label Content="Da ID:" VerticalAlignment="Center"/>
+            <TextBox Name="txtFrom" Width="50" Margin="5,0,10,0"/>
+            <Label Content="A ID:" VerticalAlignment="Center"/>
+            <TextBox Name="txtTo" Width="50" Margin="5,0,0,0"/>
+        </StackPanel>
+
+        <!-- Bottone per confermare -->
+        <Button Name="BtnExport"
+                Grid.Row="1"
+                Content="Esporta"
+                Width="100"
+                HorizontalAlignment="Left"
+                Click="BtnExport_Click"/>
+
+        <!-- Messaggio di feedback -->
+        <TextBlock Name="txtResult"
+                   Grid.Row="2"
+                   Margin="0,10,0,0"/>
+    </Grid>
+</Window>

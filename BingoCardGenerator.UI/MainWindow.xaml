@@ -120,14 +120,16 @@
                     Name="BtnOpenGenerateWindow"
                     Click="BtnOpenGenerateWindow_Click"
                     Content="Genera nuove schede"
-                    Width="150"/>
+                    Width="150"
+                    IsEnabled="False"/>
 
                 <!-- Right dock -->
                 <Button DockPanel.Dock="Right"
-                    Name="BtnExportImage"
-                    Click="BtnExportImage_Click"
-                    Content="Esporta PDF"
-                    Width="100"/>
+                    Name="BtnExportRange"
+                    Click="BtnExportRange_Click"
+                    Content="Esporta Schede"
+                    Width="150"
+                    IsEnabled="False"/>
             </DockPanel>
         </Grid>
     </Grid>
