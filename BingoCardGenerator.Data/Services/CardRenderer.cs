@@ -9,55 +9,59 @@ using BingoCardGenerator.Core.Models;
 
 namespace BingoCardGenerator.Data.Services
 {
+    [SupportedOSPlatform("windows")]
     public static class CardRenderer
     {
-        private static readonly PrivateFontCollection _fontCollection;
+        // 1) Risorse statiche caricate una volta
+        private static readonly Bitmap TemplateBg;
+        private static readonly Bitmap Placeholder0;
+        private static readonly Bitmap Placeholder1;
+        private static readonly Font CustomFont;
+        private static readonly Font CustomIDFont;
+        private static readonly StringFormat TextFormat;
+        private static readonly PrivateFontCollection _fontCollection = new();
+
         static CardRenderer()
         {
-            _fontCollection = new PrivateFontCollection();
-            var fontPath = Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "assets", "fonts", "CroissantOne-Regular.ttf");
-            _fontCollection.AddFontFile(fontPath);
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+
+            // Sfondo "master"
+            TemplateBg    = (Bitmap)Image.FromFile(Path.Combine(baseDir, "assets", "background.png"));
+            // Placeholder anonimi
+            Placeholder0 = (Bitmap)Image.FromFile(Path.Combine(baseDir, "assets", "unknow-artist.png"));
+            Placeholder1 = (Bitmap)Image.FromFile(Path.Combine(baseDir, "assets", "unknow-artist-2.png"));
+
+            _fontCollection.AddFontFile(Path.Combine(baseDir, "assets", "fonts", "CroissantOne-Regular.ttf"));
+
+            CustomFont = new Font(_fontCollection.Families[0], 20, FontStyle.Regular, GraphicsUnit.Pixel);
+            CustomIDFont = new Font(_fontCollection.Families[0], 50, FontStyle.Regular, GraphicsUnit.Pixel);
+
+            // StringFormat per centrare e limitare a 2 righe
+            TextFormat = new StringFormat
+            {
+                Alignment = StringAlignment.Center,
+                Trimming = StringTrimming.None,
+                FormatFlags = StringFormatFlags.LineLimit
+            };
         }
 
         [SupportedOSPlatform("windows")]
-        public static void RenderCardImage(BingoCard card, string backgroundPath, string outputPath)
+        public static void RenderCardImage(
+            BingoCard card,
+            string outputPath)
         {
-            using Bitmap bg = (Bitmap)Image.FromFile(backgroundPath);
-            using Graphics g = Graphics.FromImage(bg);
+            // Clona lo sfondo (non stiriamo direttamente TemplateBg)
+            using var bg = new Bitmap(TemplateBg);
+            using var g = Graphics.FromImage(bg);
 
+            // Layout constants
             const int slotSize = 150;
             const int gapX = 34;
             const int gapY = 87;
             const int startX = 155;
             const int startY = 207;
             const int textMarginTop = 4;
-            const int fontSize = 20;
-            int lineHeight = (int)(fontSize * 1.2);
-
-            // placeholder images
-            using var ph0 = Image.FromFile(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "assets", "unknow-artist.png"));
-            using var ph1 = Image.FromFile(Path.Combine(
-                AppDomain.CurrentDomain.BaseDirectory,
-                "assets", "unknow-artist-2.png"));
-
-            // font custom
-            var croissantFamily = _fontCollection.Families[0];
-            using var font = new Font(
-                croissantFamily,
-                fontSize,
-                FontStyle.Regular,
-                GraphicsUnit.Pixel);
-
-            var sf = new StringFormat
-            {
-                Alignment = StringAlignment.Center,
-                Trimming = StringTrimming.None,
-                FormatFlags = StringFormatFlags.LineLimit
-            };
+            int lineHeight = (int)(CustomFont.Size * 1.2);
 
             var entries = card.Entries.OrderBy(e => e.Position).ToList();
             int idx = 0;
@@ -80,62 +84,70 @@ namespace BingoCardGenerator.Data.Services
                     }
                     else
                     {
-                        var ph = ((card.Id + entry.Position) % 2 == 0) ? ph0 : ph1;
+                        var ph = ((card.Id + entry.Position) % 2 == 0)
+                                     ? Placeholder0
+                                     : Placeholder1;
                         using var resizedPh = new Bitmap(ph, slotSize, slotSize);
                         g.DrawImage(resizedPh, new Rectangle(x, y, slotSize, slotSize));
                     }
 
-                    // 2) Disegna nome: spezzalo solo se non ci sta su una riga
+                    // 2) Testo: wrap “semplice” su ultimo spazio se c’è
                     if (entry.Artist != null)
                     {
                         string name = entry.Artist.Name;
-                        // misura la stringa intera
-                        var fullSize = g.MeasureString(name, font);
-
-                        if (fullSize.Width <= slotSize)
+                        int breakPos = name.LastIndexOf(' ');
+                        if (breakPos > 0)
                         {
-                            // ci sta: disegna in un'unica riga
-                            var rect = new Rectangle(x, y + slotSize + textMarginTop, slotSize, lineHeight);
-                            g.DrawString(name, font, Brushes.White, rect, sf);
-                        }
-                        else
-                        {
-                            // non ci sta: trova l'ultimo spazio che permette di farci stare la prima parte
-                            int breakPos = -1;
-                            for (int i = 0; i < name.Length; i++)
-                            {
-                                if (name[i] != ' ') continue;
-                                string part = name.Substring(0, i);
-                                if (g.MeasureString(part, font).Width <= slotSize)
-                                    breakPos = i;
-                                else
-                                    break;
-                            }
-                            // se non troviamo spazio valido, spezza a metà parola
-                            if (breakPos < 0)
-                                breakPos = name.Length / 2;
-
+                            // spezza in due righe all’ultimo spazio
                             string line1 = name.Substring(0, breakPos).Trim();
                             string line2 = name.Substring(breakPos).Trim();
 
-                            // disegna le due righe
+                            // disegna prima riga
                             var rect1 = new Rectangle(
                                 x,
                                 y + slotSize + textMarginTop,
                                 slotSize,
                                 lineHeight);
-                            g.DrawString(line1, font, Brushes.White, rect1, sf);
+                            g.DrawString(line1, CustomFont, Brushes.White, rect1, TextFormat);
 
+                            // disegna seconda riga
                             var rect2 = new Rectangle(
                                 x,
                                 y + slotSize + textMarginTop + lineHeight,
                                 slotSize,
                                 lineHeight);
-                            g.DrawString(line2, font, Brushes.White, rect2, sf);
+                            g.DrawString(line2, CustomFont, Brushes.White, rect2, TextFormat);
+                        }
+                        else
+                        {
+                            // nessuno spazio: rimane tutto su una riga
+                            var rect = new Rectangle(
+                                x,
+                                y + slotSize + textMarginTop,
+                                slotSize,
+                                lineHeight);
+                            g.DrawString(name, CustomFont, Brushes.White, rect, TextFormat);
                         }
                     }
+
                 }
             }
+
+            // 3) Disegna l'ID della card
+            int idX = 1060;
+            int idY = 1080;
+            int idWidth = 150;
+            int idHeight = 100;
+
+            var idRect = new Rectangle(idX, idY, idWidth, idHeight);
+
+            g.DrawString(
+                card.Id.ToString(),
+                CustomIDFont,
+                Brushes.White,
+                idRect,
+                new StringFormat { Alignment = StringAlignment.Center }
+            );
 
             bg.Save(outputPath, ImageFormat.Png);
         }

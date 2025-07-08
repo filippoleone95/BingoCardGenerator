@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -64,31 +65,41 @@ namespace BingoCardGenerator.UI
             }
         }
 
-        private void LvCards_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void LvCards_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (LvCards.SelectedItem is not BingoCard stub || _db is null) return;
+            if (_db is null) return;
+            previewCanvas.Children.Clear();
 
+            // Prendi l'ID selezionato
+            if (LvCards.SelectedValue is not int cardId) return;
+
+            // Pulisci anteprima e libera riferimenti precedenti
+            previewCanvas.Children.Clear();
+            GC.Collect();  // opzionale: aiuta a liberare subito le immagini non più referenziate
+
+            // Carica solo la card cliccata
             var card = _db.Cards
                           .Include(c => c.Entries)
-                              .ThenInclude(en => en.Artist)
+                            .ThenInclude(en => en.Artist)
                           .AsNoTracking()
-                          .First(c => c.Id == stub.Id);
-
-            ShowPreview(card);
+                          .FirstOrDefault(c => c.Id == cardId);
+            if (card != null)
+            {
+                ShowPreview(card);
+                txtStatus.Text = $"Mostrata anteprima scheda {card.Id}";
+            }
         }
 
         private void RefreshCardList()
         {
             if (_db is null) return;
 
-            var cards = _db.Cards
-                           .Include(c => c.Entries)
-                               .ThenInclude(en => en.Artist)
-                           .AsNoTracking()
-                           .ToList();
-
-            LvCards.ItemsSource = cards;
+            LvCards.ItemsSource = _db.Cards
+                .AsNoTracking()
+                .Select(c => new { c.Id, c.CreatedAt })
+                .ToList();
         }
+
 
         private void ShowPreview(BingoCard card)
         {
@@ -150,6 +161,22 @@ namespace BingoCardGenerator.UI
                         previewCanvas.Children.Add(tb);
                     }
                 }
+            // 3) Disegna l'ID della card
+            // crea il TextBlock per l'ID
+            var tbId = new TextBlock
+            {
+                Text = card.Id.ToString(),
+                FontSize = 50,                    // scegli la dimensione che preferisci
+                FontWeight = FontWeights.Bold,
+                Foreground = Brushes.White,
+                FontFamily = (FontFamily)Resources["CroissantOneFont"],                 
+                Width = 100,                   
+                TextAlignment = TextAlignment.Center
+            };
+            Canvas.SetLeft(tbId, 1080);
+            Canvas.SetTop(tbId, 1090);
+
+            previewCanvas.Children.Add(tbId);
         }
 
         private void BtnExportRange_Click(object sender, RoutedEventArgs e)
@@ -197,33 +224,25 @@ namespace BingoCardGenerator.UI
             if (dlg.ShowDialog() != CommonFileDialogResult.Ok) return;
             string folder = dlg.FileName;
 
-            // 3) Preleva le card nel range
-            var cards = _db.Cards
-                           .Include(c => c.Entries)
-                             .ThenInclude(en => en.Artist)
-                           .AsNoTracking()
-                           .Where(c => c.Id >= fromId && c.Id <= toId)
-                           .OrderBy(c => c.Id)
-                           .ToList();
+            // Query streamable (senza ToList)
+            var cardsQuery = _db.Cards
+                    .AsNoTracking()
+                    .Where(c => c.Id >= fromId && c.Id <= toId)
+                    .OrderBy(c => c.Id);
 
-            // 3.1) Controlla che ci siano effettivamente schede da esportare
-            if (cards.Count == 0)
-            {
-                MessageBox.Show("Nessuna scheda trovata nell'intervallo specificato.", "Errore",
-                                MessageBoxButton.OK, MessageBoxImage.Error);
-                return;
-            }
-
-            // 4) Esporta tutte le schede a PNG
-            string bgPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                                         "assets", "background.png");
             int count = 0;
-            foreach (var card in cards)
+            foreach (var stub in cardsQuery)
             {
-                string outputPath = Path.Combine(folder,
-                    $"card_{card.Id}.png");
-                CardRenderer.RenderCardImage(card, bgPath, outputPath);
+                var card = _db.Cards
+                  .Include(c => c.Entries)
+                    .ThenInclude(en => en.Artist)
+                  .AsNoTracking()
+                  .First(c => c.Id == stub.Id);
+
+                string outputPath = Path.Combine(folder, $"card_{card.Id}.png");
+                CardRenderer.RenderCardImage(card, outputPath);
                 count++;
+                // facoltativo: GC.Collect() se vedi ancora ritenzioni
             }
 
             // 5) Feedback

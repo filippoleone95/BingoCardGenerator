@@ -60,12 +60,13 @@
 
             <!-- Lista schede: occupa riga propria -->
             <ListView Grid.Row="1"
-              Name="LvCards"
-              SelectionChanged="LvCards_SelectionChanged">
+                Name="LvCards"
+                MouseDoubleClick="LvCards_MouseDoubleClick"
+                SelectedValuePath="Id">
                 <ListView.View>
                     <GridView>
                         <GridViewColumn Header="ID"
-                                DisplayMemberBinding="{Binding Id}" />
+                                DisplayMemberBinding="{Binding Id}" Width="60"/>
                         <GridViewColumn Header="Data"
                                 DisplayMemberBinding="{Binding CreatedAt}" />
                     </GridView>
